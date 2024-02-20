@@ -1,0 +1,21 @@
+{
+  "name": "ignite-fwk",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Frontend framework",
+  "workspaces": [
+    "packages/compiler",
+    "packages/loader",
+    "packages/runtime"
+  ],
+  "scripts": {
+    "serve:examples": "npx http-server . -o ./examples/ -bg"
+  },
+  "keywords": [
+    "js",
+    "javascript",
+    "frontend",
+    "framework"
+  ],
+  "license": "MIT"
+}
