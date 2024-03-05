@@ -1,5 +1,10 @@
 export function withoutNulls(arr) {
-    return arr.filter((item) => item !== null && item !== undefined)
+  return arr.filter((item) => item !== null && item !== undefined);
 }
 
-console.log(null != undefined)
+export function arraysDiff(oldArray, newArray) {
+  return {
+    added: newArray.filter((newItem) => !oldArray.includes(newItem)),
+    removed: oldArray.filter((oldItem) => !newArray.includes(oldItem)),
+  };
+}
