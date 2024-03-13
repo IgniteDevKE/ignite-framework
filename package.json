@@ -1,6 +1,6 @@
 {
   "name": "ignite-fwk",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Frontend framework",
   "workspaces": [
