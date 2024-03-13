@@ -1,7 +1,17 @@
+import {
+  removeAttribute,
+  setAttribute,
+  removeStyle,
+  setStyle,
+} from "./attributes";
 import { destroyDOM } from "./destroy-dom";
+import { addEventListener } from "./events";
 import { DOM_TYPES } from "./h";
-import { mountDOM } from "./mount-dom";
+import { mountDOM, extractChildren } from "./mount-dom";
 import { areNodesEqual } from "./nodes-equal";
+import { objectsDiff } from "./utils/objects";
+import { arraysDiff, arraysDiffSequence, ARRAY_DIFF_OP } from "./utils/arrays";
+import { isNotBlankOrEmptyString } from "./utils/strings";
 
 export function patchDOM(oldVdom, newVdom, parentEl) {
   if (!areNodesEqual(oldVdom, newVdom)) {
@@ -26,7 +36,45 @@ export function patchDOM(oldVdom, newVdom, parentEl) {
     }
   }
 
+  patchChildren(oldVdom, newVdom);
+
   return newVdom;
+}
+
+// implement patchChildren()
+function patchChildren(oldVdom, newVdom) {
+  const oldChildren = extractChildren(oldVdom);
+  const newChildren = extractChildren(newVdom);
+  const parentEl = oldVdom.el;
+  const diffSeq = arraysDiffSequence(oldChildren, newChildren, areNodesEqual);
+  for (const operation of diffSeq) {
+    const { originalIndex, index, item } = operation;
+    switch (operation.op) {
+      case ARRAY_DIFF_OP.ADD: {
+        mountDOM(item, parentEl, index);
+        break;
+      }
+      case ARRAY_DIFF_OP.REMOVE: {
+        destroyDOM(item);
+        break;
+      }
+      case ARRAY_DIFF_OP.MOVE: {
+        const oldChild = oldChildren[originalIndex];
+        const newChild = newChildren[index];
+        const el = oldChild.el;
+        const elAtTargetIndex = parentEl.childNodes[index];
+
+        parentEl.insertBefore(el, elAtTargetIndex);
+        patchDOM(oldChild, newChild, parentEl);
+
+        break;
+      }
+      case ARRAY_DIFF_OP.NOOP: {
+        patchDOM(oldChildren[originalIndex], newChildren[index], parentEl);
+        break;
+      }
+    }
+  }
 }
 
 function patchText(oldVdom, newVdom) {
@@ -63,8 +111,60 @@ function patchElement(oldVdom, newVdom) {
   newVdom.listeners = patchEvents(el, oldListeners, oldEvents, newEvents);
 }
 
-// TODO: implement patchAttrs()
+// implement patchAttrs()
+function patchAttrs(el, oldAttrs, newAttrs) {
+  const { added, removed, updated } = objectsDiff(oldAttrs, newAttrs);
+  for (const attr of removed) {
+    removeAttribute(el, attr);
+  }
+  for (const attr of added.concat(updated)) {
+    setAttribute(el, attr, newAttrs[attr]);
+  }
+}
+// implement patchClasses()
+function patchClasses(el, oldClass, newClass) {
+  const oldClasses = toClassList(oldClass);
+  const newClasses = toClassList(newClass);
 
-// TODO: implement patchClasses()
-// TODO: implement patchStyles()
-// TODO: implement patchEvents()
+  const { added, removed } = arraysDiff(oldClasses, newClasses);
+
+  if (removed.length > 0) {
+    el.classList.remove(...removed);
+  }
+
+  if (added.length > 0) {
+    el.classList.add(...added);
+  }
+
+  function toClassList(classes = "") {
+    return Array.isArray(classes)
+      ? classes.filter(isNotBlankOrEmptyString)
+      : classes.split(/(\s+)/).filter(isNotBlankOrEmptyString);
+  }
+}
+// implement patchStyles()
+function patchStyles(el, oldStyle = {}, newStyle = {}) {
+  const { added, removed, updated } = objectsDiff(oldStyle, newStyle);
+
+  for (const style of removed) {
+    removeStyle(el, style);
+  }
+
+  for (const style of added.concat(updated)) {
+    setStyle(el, style, newStyle[style]);
+  }
+}
+// implement patchEvents()
+function patchEvents(el, oldListeners = {}, oldEvents = {}, newEvents = {}) {
+  const { added, removed, updated } = objectsDiff(oldEvents, newEvents);
+
+  for (const eventName of removed.concat(updated)) {
+    el.removeEventListener(eventName, oldListeners[eventName]);
+  }
+  const addedListeners = {};
+  for (const eventName of added.concat(updated)) {
+    const listener = addEventListener(eventName, newEvents[eventName], el);
+    addedListeners[eventName] = listener;
+  }
+  return addedListeners;
+}
