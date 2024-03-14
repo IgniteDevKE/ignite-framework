@@ -1,16 +1,8 @@
-# ignite-fwk-compiler
+# Fe-Fwk Compiler
 
 ![fe-fwk](https://img.shields.io/badge/fe--fwk-book-blueviolet)
 
-Code for the book "Build a frontend framework from scratch".
-You can get your copy [here](http:&#x2F;&#x2F;mng.bz&#x2F;aM2o) and start learning how frontend frameworks work by building your own, from scratch!
+Code for the book "[Build a frontend framework from scratch](http://mng.bz/aM2o)".
 
-## Commands
-
-This package has the following commands:
-
-- `npm run build` - Bundle the project into a single ESM file
-- `npm run lint` - Lint the project
-- `npm run lint:fix` - Lint the project and fix any issues
-- `npm run test [<test-path>]` - Start the test runner in watch mode
-- `npm run test:run [<test-path>]` - Run the tests once
+This framework **isn't intended for production use**.
+Its intention is to **teach you how frontend frameworks work** by building one yourself, from scratch.

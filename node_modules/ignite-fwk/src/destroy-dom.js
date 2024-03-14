@@ -1,44 +1,72 @@
-import { removeEventListeners } from "./events";
-import { DOM_TYPES } from "./h";
+import { removeEventListeners } from './events'
+import { DOM_TYPES } from './h'
+import { enqueueJob } from './scheduler'
+import { assert } from './utils/assert'
 
+/**
+ * Unmounts the DOM nodes for a virtual DOM tree recursively.
+ *
+ * Removes all `el` references from the vdom tree and removes all the event
+ * listeners from the DOM.
+ *
+ * @param {import('./h').VNode} vdom the virtual DOM node to destroy
+ */
 export function destroyDOM(vdom) {
-  const { type } = vdom;
+  const { type } = vdom
+
   switch (type) {
     case DOM_TYPES.TEXT: {
-      removeTextNode(vdom);
-      break;
+      removeTextNode(vdom)
+      break
     }
+
     case DOM_TYPES.ELEMENT: {
-      removeElementNode(vdom);
-      break;
+      removeElementNode(vdom)
+      break
     }
+
     case DOM_TYPES.FRAGMENT: {
-      removeFragmentNodes(vdom);
-      break;
+      removeFragmentNodes(vdom)
+      break
     }
+
+    case DOM_TYPES.COMPONENT: {
+      vdom.component.unmount()
+      enqueueJob(() => vdom.component.onUnmounted())
+      break
+    }
+
     default: {
-      throw new Error(`Can't destroy DOM of type: ${type}`);
+      throw new Error(`Can't destroy DOM of type: ${type}`)
     }
   }
-  delete vdom.el;
+
+  delete vdom.el
 }
-// TODO: implement removeTextNode()
+
 function removeTextNode(vdom) {
-  vdom.el.remove();
+  const { el } = vdom
+
+  assert(el instanceof Text)
+
+  el.remove()
 }
-// TODO: implement removeElementNode()
+
 function removeElementNode(vdom) {
-  const { el, children, listeners } = vdom;
-  el.remove();
-  children.forEach(destroyDOM);
+  const { el, children, listeners } = vdom
+
+  assert(el instanceof HTMLElement)
+
+  el.remove()
+  children.forEach(destroyDOM)
+
   if (listeners) {
-    removeEventListeners(listeners, el);
-    delete vdom.listeners;
+    removeEventListeners(listeners, el)
+    delete vdom.listeners
   }
 }
 
-// TODO: implement removeFragmentNodes()
 function removeFragmentNodes(vdom) {
-  const { children } = vdom;
-  children.forEach(destroyDOM);
+  const { children } = vdom
+  children.forEach(destroyDOM)
 }
