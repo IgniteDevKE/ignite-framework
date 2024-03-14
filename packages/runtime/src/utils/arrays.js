@@ -6,7 +6,7 @@
  * @returns {any[]} an array
  */
 export function toArray(maybeArray) {
-  return Array.isArray(maybeArray) ? maybeArray : [maybeArray];
+  return Array.isArray(maybeArray) ? maybeArray : [maybeArray]
 }
 
 /**
@@ -16,7 +16,7 @@ export function toArray(maybeArray) {
  * @returns {any[]} the array without nulls and undefined values
  */
 export function withoutNulls(arr) {
-  return arr.filter((item) => item != null);
+  return arr.filter((item) => item != null)
 }
 
 /**
@@ -31,15 +31,15 @@ export function arraysDiff(oldArray, newArray) {
   return {
     added: newArray.filter((newItem) => !oldArray.includes(newItem)),
     removed: oldArray.filter((oldItem) => !newArray.includes(oldItem)),
-  };
+  }
 }
 
 export const ARRAY_DIFF_OP = {
-  ADD: "add",
-  REMOVE: "remove",
-  MOVE: "move",
-  NOOP: "noop",
-};
+  ADD: 'add',
+  REMOVE: 'remove',
+  MOVE: 'move',
+  NOOP: 'noop',
+}
 
 /**
  * @typedef ArraysDiffSequenceOp
@@ -72,36 +72,36 @@ export function arraysDiffSequence(
   newArray,
   equalsFn = (a, b) => a === b
 ) {
-  const sequence = [];
-  const array = new ArrayWithOriginalIndices(oldArray, equalsFn);
+  const sequence = []
+  const array = new ArrayWithOriginalIndices(oldArray, equalsFn)
 
   for (let index = 0; index < newArray.length; index++) {
     if (array.isRemoval(index, newArray)) {
-      sequence.push(array.removeItem(index));
+      sequence.push(array.removeItem(index))
       // Removals shouldn't advance the index. Removing the item shifts the
       // remaining items to the left, so the next item is now at the same index.
-      index--;
-      continue;
+      index--
+      continue
     }
 
     if (array.isNoop(index, newArray)) {
-      sequence.push(array.noopItem(index));
-      continue;
+      sequence.push(array.noopItem(index))
+      continue
     }
 
-    const item = newArray[index];
+    const item = newArray[index]
 
     if (array.isAddition(item, index)) {
-      sequence.push(array.addItem(item, index));
-      continue;
+      sequence.push(array.addItem(item, index))
+      continue
     }
 
-    sequence.push(array.moveItem(item, index));
+    sequence.push(array.moveItem(item, index))
   }
 
-  sequence.push(...array.removeItemsAfter(newArray.length));
+  sequence.push(...array.removeItemsAfter(newArray.length))
 
-  return sequence;
+  return sequence
 }
 
 /**
@@ -117,22 +117,22 @@ export function applyArraysDiffSequence(oldArray, diffSeq) {
     (array, { op, item, index, from }) => {
       switch (op) {
         case ARRAY_DIFF_OP.ADD:
-          array.splice(index, 0, item);
-          break;
+          array.splice(index, 0, item)
+          break
 
         case ARRAY_DIFF_OP.REMOVE:
-          array.splice(index, 1);
-          break;
+          array.splice(index, 1)
+          break
 
         case ARRAY_DIFF_OP.MOVE:
-          array.splice(index, 0, array.splice(from, 1)[0]);
-          break;
+          array.splice(index, 0, array.splice(from, 1)[0])
+          break
       }
 
-      return array;
+      return array
     },
     [...oldArray]
-  );
+  )
 }
 
 /**
@@ -141,11 +141,11 @@ export function applyArraysDiffSequence(oldArray, diffSeq) {
  */
 class ArrayWithOriginalIndices {
   /** @type {any[]} */
-  #array = [];
+  #array = []
   /** @type {number[]} */
-  #originalIndices = [];
+  #originalIndices = []
   /** @type {(a: any, b: any) => boolean} */
-  #equalsFn;
+  #equalsFn
 
   /**
    * @param {any[]} array the array to wrap
@@ -153,9 +153,9 @@ class ArrayWithOriginalIndices {
    * @returns {ArrayWithOriginalIndices}
    */
   constructor(array, equalsFn) {
-    this.#array = [...array];
-    this.#originalIndices = array.map((_, i) => i);
-    this.#equalsFn = equalsFn;
+    this.#array = [...array]
+    this.#originalIndices = array.map((_, i) => i)
+    this.#equalsFn = equalsFn
   }
 
   /**
@@ -164,7 +164,7 @@ class ArrayWithOriginalIndices {
    * @type {number}
    */
   get length() {
-    return this.#array.length;
+    return this.#array.length
   }
 
   /**
@@ -175,7 +175,7 @@ class ArrayWithOriginalIndices {
    * @returns {number} the original index of the item at the given index
    */
   originalIndexAt(index) {
-    return this.#originalIndices[index];
+    return this.#originalIndices[index]
   }
 
   /**
@@ -190,11 +190,11 @@ class ArrayWithOriginalIndices {
   findIndexFrom(item, fromIndex) {
     for (let i = fromIndex; i < this.length; i++) {
       if (this.#equalsFn(item, this.#array[i])) {
-        return i;
+        return i
       }
     }
 
-    return -1;
+    return -1
   }
 
   /**
@@ -209,15 +209,15 @@ class ArrayWithOriginalIndices {
   isRemoval(index, newArray) {
     // If the index is beyond the length of the array, it can't be a removal.
     if (index >= this.length) {
-      return false;
+      return false
     }
 
-    const item = this.#array[index];
+    const item = this.#array[index]
     const indexInNewArray = newArray.findIndex((newItem) =>
       this.#equalsFn(item, newItem)
-    );
+    )
 
-    return indexInNewArray === -1;
+    return indexInNewArray === -1
   }
 
   /**
@@ -232,12 +232,12 @@ class ArrayWithOriginalIndices {
       op: ARRAY_DIFF_OP.REMOVE,
       index,
       item: this.#array[index],
-    };
+    }
 
-    this.#array.splice(index, 1);
-    this.#originalIndices.splice(index, 1);
+    this.#array.splice(index, 1)
+    this.#originalIndices.splice(index, 1)
 
-    return operation;
+    return operation
   }
 
   /**
@@ -252,13 +252,13 @@ class ArrayWithOriginalIndices {
   isNoop(index, newArray) {
     // If the index is beyond the length of the array, it can't be a noop.
     if (index >= this.length) {
-      return false;
+      return false
     }
 
-    const item = this.#array[index];
-    const newItem = newArray[index];
+    const item = this.#array[index]
+    const newItem = newArray[index]
 
-    return this.#equalsFn(item, newItem);
+    return this.#equalsFn(item, newItem)
   }
 
   /**
@@ -274,7 +274,7 @@ class ArrayWithOriginalIndices {
       index,
       originalIndex: this.originalIndexAt(index),
       item: this.#array[index],
-    };
+    }
   }
 
   /**
@@ -286,7 +286,7 @@ class ArrayWithOriginalIndices {
    * @returns {boolean} whether the item is an addition
    */
   isAddition(item, fromIdx) {
-    return this.findIndexFrom(item, fromIdx) === -1;
+    return this.findIndexFrom(item, fromIdx) === -1
   }
 
   /**
@@ -302,12 +302,12 @@ class ArrayWithOriginalIndices {
       op: ARRAY_DIFF_OP.ADD,
       index,
       item,
-    };
+    }
 
-    this.#array.splice(index, 0, item);
-    this.#originalIndices.splice(index, 0, -1);
+    this.#array.splice(index, 0, item)
+    this.#originalIndices.splice(index, 0, -1)
 
-    return operation;
+    return operation
   }
 
   /**
@@ -320,7 +320,7 @@ class ArrayWithOriginalIndices {
    * @returns {ArraysDiffSequenceOp} move operation
    */
   moveItem(item, toIndex) {
-    const fromIndex = this.findIndexFrom(item, toIndex);
+    const fromIndex = this.findIndexFrom(item, toIndex)
 
     const operation = {
       op: ARRAY_DIFF_OP.MOVE,
@@ -328,15 +328,15 @@ class ArrayWithOriginalIndices {
       from: fromIndex,
       index: toIndex,
       item: this.#array[fromIndex],
-    };
+    }
 
-    const [_item] = this.#array.splice(fromIndex, 1);
-    this.#array.splice(toIndex, 0, _item);
+    const [_item] = this.#array.splice(fromIndex, 1)
+    this.#array.splice(toIndex, 0, _item)
 
-    const [originalIndex] = this.#originalIndices.splice(fromIndex, 1);
-    this.#originalIndices.splice(toIndex, 0, originalIndex);
+    const [originalIndex] = this.#originalIndices.splice(fromIndex, 1)
+    this.#originalIndices.splice(toIndex, 0, originalIndex)
 
-    return operation;
+    return operation
   }
 
   /**
@@ -346,12 +346,12 @@ class ArrayWithOriginalIndices {
    * @returns {ArraysDiffSequenceOp[]} the removal operations
    */
   removeItemsAfter(index) {
-    const operations = [];
+    const operations = []
 
     while (this.length > index) {
-      operations.push(this.removeItem(index));
+      operations.push(this.removeItem(index))
     }
 
-    return operations;
+    return operations
   }
 }
