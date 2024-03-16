@@ -1,6 +1,6 @@
 {
   "name": "ignite-fwk",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha",
   "description": "A frontend framework to teach web developers how frontend frameworks work.",
   "keywords": [
     "frontend",
@@ -10,9 +10,9 @@
     "web",
     "development"
   ],
-  "main": "dist/fe-fwk.js",
+  "main": "dist/ignite-fwk",
   "files": [
-    "dist/fe-fwk.js"
+    "dist/ignite-fwk"
   ],
   "scripts": {
     "build": "rollup -c",

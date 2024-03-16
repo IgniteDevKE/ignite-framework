@@ -6,8 +6,8 @@ import {
 } from "./attributes";
 import { destroyDOM } from "./destroy-dom";
 import { addEventListener } from "./events";
-import { DOM_TYPES } from "./h";
-import { mountDOM, extractChildren } from "./mount-dom";
+import { DOM_TYPES, extractChildren } from "./h";
+import { mountDOM } from "./mount-dom";
 import { areNodesEqual } from "./nodes-equal";
 import { objectsDiff } from "./utils/objects";
 import { arraysDiff, arraysDiffSequence, ARRAY_DIFF_OP } from "./utils/arrays";

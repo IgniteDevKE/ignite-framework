@@ -1,5 +1,5 @@
 export function withoutNulls(arr) {
-  return arr.filter((item) => item !== null && item !== undefined);
+  return arr.filter((item) => item != null);
 }
 
 export function arraysDiff(oldArray, newArray) {
@@ -8,6 +8,13 @@ export function arraysDiff(oldArray, newArray) {
     removed: oldArray.filter((oldItem) => !newArray.includes(oldItem)),
   };
 }
+
+export const ARRAY_DIFF_OP = {
+  ADD: "add",
+  REMOVE: "remove",
+  MOVE: "move",
+  NOOP: "noop",
+};
 
 class ArrayWithOriginalIndices {
   array = [];
