@@ -1,6 +1,6 @@
 {
   "name": "ignite-framework",
-  "version": "1.0.0-alpha",
+  "version": "1.0.0",
   "description": "A frontend framework to teach web developers how frontend frameworks work.",
   "keywords": [
     "frontend",
