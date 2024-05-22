@@ -6,8 +6,8 @@ import {
 } from "./attributes";
 import { destroyDOM } from "./destroy-dom";
 import { addEventListener } from "./events";
-import { DOM_TYPES, extractChildren } from "./h";
-import { mountDOM } from "./mount-dom";
+import { DOM_TYPES } from "./h";
+import { mountDOM, extractChildren } from "./mount-dom";
 import { areNodesEqual } from "./nodes-equal";
 import { objectsDiff } from "./utils/objects";
 import { arraysDiff, arraysDiffSequence, ARRAY_DIFF_OP } from "./utils/arrays";
@@ -15,7 +15,7 @@ import { isNotBlankOrEmptyString } from "./utils/strings";
 
 export function patchDOM(oldVdom, newVdom, parentEl) {
   if (!areNodesEqual(oldVdom, newVdom)) {
-    const index = Array.from(parentEl.childNodes).indexOf(oldVdom.el);
+    const index = findIndexInParent(parentEl, oldVdom.el);
     destroyDOM(oldVdom);
     mountDOM(newVdom, parentEl, index);
 
@@ -39,6 +39,15 @@ export function patchDOM(oldVdom, newVdom, parentEl) {
   patchChildren(oldVdom, newVdom);
 
   return newVdom;
+}
+
+function findIndexInParent(parentEl, el) {
+  const index = Array.from(parentEl.childNodes).indexOf(el);
+  if (index < 0) {
+    return null;
+  }
+
+  return index;
 }
 
 // implement patchChildren()
