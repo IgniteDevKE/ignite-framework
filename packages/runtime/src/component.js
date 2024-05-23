@@ -1,5 +1,6 @@
 import { destroyDOM } from "./destroy-dom";
 import { mountDOM } from "./mount-dom";
+import { patchDOM } from "./patch-dom";
 
 export function defineComponent({ render, state }) {
   class Component {
@@ -12,8 +13,13 @@ export function defineComponent({ render, state }) {
       this.state = state ? state(props) : {};
     }
 
+    updateState(state) {
+      this.state = { ...this.state, ...state };
+      this.#patch();
+    }
+
     render() {
-      return render();
+      return render.call(this);
     }
 
     mount(hostEl, index = null) {
@@ -35,6 +41,15 @@ export function defineComponent({ render, state }) {
       this.#vdom = null;
       this.#hostEl = null;
       this.#isMounted = false;
+    }
+
+    #patch() {
+      if (!this.#isMounted) {
+        throw new Error("Component is not mounted");
+      }
+
+      const vdom = this.render();
+      this.#vdom = patchDOM(this.#vdom, vdom, this.#hostEl);
     }
   }
 
