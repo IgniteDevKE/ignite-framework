@@ -1,11 +1,16 @@
 import { destroyDOM } from "./destroy-dom";
 import { mountDOM } from "./mount-dom";
 
-export function defineComponent({ render }) {
+export function defineComponent({ render, state }) {
   class Component {
     #isMounted = false;
     #vdom = null;
     #hostEl = null;
+
+    constructor(props = {}) {
+      this.props = props;
+      this.state = state ? state(props) : {};
+    }
 
     render() {
       return render();
