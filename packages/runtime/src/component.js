@@ -74,7 +74,7 @@ export function defineComponent({ render, state }) {
       }
 
       const vdom = this.render();
-      this.#vdom = patchDOM(this.#vdom, vdom, this.#hostEl);
+      this.#vdom = patchDOM(this.#vdom, vdom, this.#hostEl, this);
     }
   }
 
